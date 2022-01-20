@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-// import axios from 'axios'
+import axios from 'axios'
 import personService from './services/persons'
 import Person from './components/Person'
 import Form from './components/Form'
@@ -16,7 +16,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setFilter] = useState('')
-  const [ notification, setNotification ] = useState(null)
+  const [notification, setNotification ] = useState(null)
 
   useEffect(() => {
     personService
@@ -35,27 +35,6 @@ const App = () => {
 
   const addName = (event) => {
     event.preventDefault();
-    const existing = persons.find(p => p.name === newName)
-    if (existing) {
-      const ok = window.confirm(`${newName} is already existing. Want to override?`)
-      if (ok){
-        const changedPerson = 
-        { 
-          name: existing.name,
-          number: newNumber 
-        }
-        personService
-        .update(existing.id, changedPerson)
-        .then(returnedPerson => {
-          setPersons(persons.map(person => person.id !== existing.id ? person : returnedPerson))
-          notifyWith(`Changed number of  ${existing.name}`)
-          setNewName('')
-          setNewNumber('')
-        })
-        
-      }
-    }
-    else {
       const newPerson = {
         name: newName,
         number: newNumber
@@ -68,10 +47,9 @@ const App = () => {
         setNewNumber('')
       })
       .catch(error => {
-        console.log(error.response.data.error)
-        notifyWith(`${error.response.data.error} `, 'error')
+        console.log(error.response.data)
+        notifyWith(`${error.response.data} `, 'error')
       })
-    }
   }
 
   const deletePerson = id => {
@@ -105,17 +83,13 @@ const App = () => {
 
   const peopleToShow = persons
     .filter(person => 
-      person.name
-      .toLowerCase()
-      .includes(newFilter.toLowerCase())
+      person.name.toLowerCase().includes(newFilter.toLowerCase())
       );
 
   return (
     <div>
       <h1>Phonebook</h1>
-
       <Notification notification={notification} />
-
       <Filter 
         handleFilter = {handleFilter} 
         newFilter = {newFilter}
